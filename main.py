@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import netCDF4
+import numpy as np
 from pybrain.datasets import SupervisedDataSet
 
 def main():
@@ -17,17 +18,53 @@ def main():
   temp_data = get_ncdf_data('sfctempud19002008.nc')
 
   # Precipitation and temperature data start in January 1901, while vegetation
-  #   data begins in July 1991.
-  offset = 12*91 + 6
+  #   data begins in 1991.
+  offset = 12*91
   
-  for year in range(1, 13, 3):  # Train on every third year, to avoid any 
-                                # intersection with test data at all
+  lats, lons = veg_data[0,:,:].shape
+
+  # This is currently too slow. It may be better if we only pay attention to the
+  # particular point in question (limiting dimensionality to 12 + 2 + 1)
+
+  for year in np.arange(1.5, 13, 3):  # Train on every third year, to avoid any 
+                                      # intersection with test data at all
     for month in range(0, 12):
-      m = 12*year + month
+      t = int(12*year + month)
+      for lat in range(10, lats):
+        for lon in range(lons):
+          s = is_available_point(veg_data, prec_data, temp_data, lat, lon, t, offset)
+          if s != None:
+            print t, lat, lon
+            ds.addSample((list(s.ravel()) + [t % 12, lat, lon]), 
+                          (veg_data[t,lat,lon],))
+        print "nextlat"
+  return ds
+
+
+      #input = (veg_data[])
+
+      #ds.addSample(input)
 
 def get_ncdf_data(filename):
   f = netCDF4.Dataset(filename, 'r');
   return f.variables['data']
+
+def is_available_point(ndvi, prec, temp, lat, lon, t, offset):
+  # Determine whether the specified data point is acceptable.
+  t = int(t)
+  lat = int(lat)
+  lon = int(lon)
+  offset = int(offset)
+  result = [ndvi[range(t-12, t), [lat-1, lat, lat+1], [lon-1, lon, lon+1]],
+    prec[range(t-12+offset, t+offset), [lat-1, lat, lat+1], [lon-1, lon, lon+1]],
+    temp[range(t-12+offset, t+offset), [lat-1, lat, lat+1], [lon-1, lon, lon+1]]]
+
+  for set in result:
+    s = set.shape
+    if type(set) != np.ndarray or s[0] != 12 or s[1] != 3 or s[2] != 3:
+      return None
+
+  return np.array(result)
  
 if __name__ == "__main__":
   main()
