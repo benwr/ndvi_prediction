@@ -28,11 +28,11 @@ def main():
 
   for year in np.arange(1.5, 13, 3):  # Train on every third year, to avoid any 
                                       # intersection with test data at all
-    for month in range(0, 12):
+    for month in range(0, 12, 3):
       t = int(12*year + month)
-      for lat in range(10, lats):
+      for lat in range(10, lats, 10):
         print lat
-        for lon in range(lons):
+        for lon in range(0, lons, 10):
           s = is_available_point(veg_data, prec_data, temp_data, lat, lon, t, offset)
           if s != None:
             print t, lat, lon
@@ -56,7 +56,7 @@ def is_available_point(ndvi, prec, temp, lat, lon, t, offset):
   lon = int(lon)
   offset = int(offset)
   result = [ndvi[range(t-12, t), lat, lon],
-    prec[range(t-12+offset, t+offset), lat*2, lon*2],
+    prec[range(t-12+offset, t+offset), lat*2-1, lon*2],
     temp[range(t-12+offset, t+offset), lat*2, lon*2]]
 
   for set in result:
