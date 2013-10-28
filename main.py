@@ -55,9 +55,17 @@ def is_available_point(ndvi, prec, temp, lat, lon, t, offset):
   lat = int(lat)
   lon = int(lon)
   offset = int(offset)
-  result = [ndvi[range(t-12, t), [lat-1, lat, lat+1], [lon-1, lon, lon+1]],
-    prec[range(t-12+offset, t+offset), [lat-1, lat, lat+1], [lon-1, lon, lon+1]],
-    temp[range(t-12+offset, t+offset), [lat-1, lat, lat+1], [lon-1, lon, lon+1]]]
+  result = [ndvi[range(t-12, t), 
+    [lat-1, lat, lat+1], 
+    [lon-1, lon, lon+1]],
+     
+    prec[range(t-12+offset, t+offset), 
+      [(lat-1)*2, lat*2, (lat+1)*2], 
+      [(lon-1)*2, lon*2, (lon+1)*2]],
+    
+    temp[range(t-12+offset, t+offset), 
+      [(lat-1)*2, lat*2, (lat+1)*2], 
+      [(lon-1)*2, lon*2, (lon+1)*2]]]
 
   for set in result:
     s = set.shape
