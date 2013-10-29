@@ -14,7 +14,7 @@ def main():
   train_errs = []
   val_errs = []
 
-  for hiddensize in range(10, 600, 15):
+  for hiddensize in range(10, 100, 5):
     net = buildNetwork(39, hiddensize, 1, hiddenclass=SigmoidLayer, outclass=SigmoidLayer)
     trainer = BackpropTrainer(net, train)
     for i in range(20):
