@@ -10,18 +10,19 @@ from pybrain.tools.validation import ModuleValidator
 def main():
   train, val = getData()
 
-  net = buildNetwork(39, 500, 1, hiddenclass=SigmoidLayer, outclass=SigmoidLayer)
-  trainer = BackpropTrainer(net, train)
 
   train_errs = []
   val_errs = []
 
-  for i in range(100):
-    terr = trainer.train()
-    train_errs.append(terr)
+  for hiddensize in range(10, 600, 15):
+    net = buildNetwork(39, hiddensize, 1, hiddenclass=SigmoidLayer, outclass=SigmoidLayer)
+    trainer = BackpropTrainer(net, train)
+    for i in range(20):
+      trainer.train()
     verr = ModuleValidator.MSE(net, val)
+    print hiddensize, ": ", verr
     val_errs.append(verr)
-    print verr, terr
+    train_errs.append(trainer.train())
 
   return  (train_errs, val_errs)
 
